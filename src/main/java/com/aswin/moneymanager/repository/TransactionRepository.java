@@ -34,4 +34,36 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             @Param("to") LocalDate to);
 
     List<Transaction> findByUserIdAndTransactionType(Long userId, TransactionType type);
+
+    @Query("SELECT t FROM Transaction t WHERE t.user.id = :userId " +
+           "AND (:from IS NULL OR t.transactionDate >= :from) " +
+           "AND (:to IS NULL OR t.transactionDate <= :to) " +
+           "AND (:categoryId IS NULL OR t.category.id = :categoryId) " +
+           "AND (:accountId IS NULL OR t.account.id = :accountId) " +
+           "AND (:type IS NULL OR t.transactionType = :type) " +
+           "AND (:search IS NULL OR LOWER(t.merchant) LIKE LOWER(CONCAT('%', :search, '%')) " +
+           "     OR LOWER(t.description) LIKE LOWER(CONCAT('%', :search, '%')))")
+    Page<Transaction> findByUserIdAndDateRangeAndFilters(
+            @Param("userId") Long userId,
+            @Param("from") LocalDate from,
+            @Param("to") LocalDate to,
+            @Param("categoryId") Long categoryId,
+            @Param("accountId") Long accountId,
+            @Param("type") TransactionType type,
+            @Param("search") String search,
+            Pageable pageable);
+
+    @Query("SELECT t FROM Transaction t WHERE t.user.id = :userId " +
+           "AND (:categoryId IS NULL OR t.category.id = :categoryId) " +
+           "AND (:accountId IS NULL OR t.account.id = :accountId) " +
+           "AND (:type IS NULL OR t.transactionType = :type) " +
+           "AND (:search IS NULL OR LOWER(t.merchant) LIKE LOWER(CONCAT('%', :search, '%')) " +
+           "     OR LOWER(t.description) LIKE LOWER(CONCAT('%', :search, '%')))")
+    Page<Transaction> findByUserIdAndFilters(
+            @Param("userId") Long userId,
+            @Param("categoryId") Long categoryId,
+            @Param("accountId") Long accountId,
+            @Param("type") TransactionType type,
+            @Param("search") String search,
+            Pageable pageable);
 }

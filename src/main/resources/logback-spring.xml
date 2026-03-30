@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="moneymanager"/>
+
+    <!-- ── Patterns ─────────────────────────────────────────────────────── -->
+    <property name="CONSOLE_PATTERN"
+              value="%d{HH:mm:ss.SSS} %highlight(%-5level) %cyan([%15.15thread]) %yellow(%-40.40logger{39}) : %msg%n%throwable"/>
+    <property name="FILE_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %-40.40logger{39} : %msg%n"/>
+
+    <!-- ── Console appender ──────────────────────────────────────────────── -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- ── Rolling file appender ─────────────────────────────────────────── -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/moneymanager.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- Roll daily, keep 30 days, max total 500 MB -->
+            <fileNamePattern>logs/moneymanager.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy
+                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>50MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>500MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${FILE_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- ── Error-only file (for quick triage) ────────────────────────────── -->
+    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/moneymanager-error.log</file>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/moneymanager-error.%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+            <maxHistory>60</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${FILE_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- ── Application loggers ───────────────────────────────────────────── -->
+    <!-- Our code: DEBUG in dev, INFO in prod -->
+    <springProfile name="default,dev">
+        <logger name="com.aswin.moneymanager" level="DEBUG" additivity="false">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE"/>
+            <appender-ref ref="ERROR_FILE"/>
+        </logger>
+    </springProfile>
+    <springProfile name="prod">
+        <logger name="com.aswin.moneymanager" level="INFO" additivity="false">
+            <appender-ref ref="FILE"/>
+            <appender-ref ref="ERROR_FILE"/>
+        </logger>
+    </springProfile>
+
+    <!-- ── HikariCP — log pool events and connection leaks ──────────────── -->
+    <logger name="com.zaxxer.hikari" level="WARN"/>
+    <logger name="com.zaxxer.hikari.pool.HikariPool" level="INFO"/>
+    <!-- Log connection leak warnings -->
+    <logger name="com.zaxxer.hikari.pool.ProxyLeakTask" level="WARN"/>
+
+    <!-- ── MySQL driver ──────────────────────────────────────────────────── -->
+    <logger name="com.mysql" level="WARN"/>
+
+    <!-- ── Hibernate SQL (enable in dev only for debugging) ──────────────── -->
+    <logger name="org.hibernate.SQL" level="WARN"/>
+    <logger name="org.hibernate.orm" level="WARN"/>
+
+    <!-- ── Spring Web — log slow/error requests ─────────────────────────── -->
+    <logger name="org.springframework.web" level="WARN"/>
+    <logger name="org.springframework.security" level="WARN"/>
+
+    <!-- ── Flyway ────────────────────────────────────────────────────────── -->
+    <logger name="org.flywaydb" level="INFO"/>
+
+    <!-- ── Redis ─────────────────────────────────────────────────────────── -->
+    <logger name="io.lettuce" level="WARN"/>
+
+    <!-- ── Root logger ───────────────────────────────────────────────────── -->
+    <root level="WARN">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="ERROR_FILE"/>
+    </root>
+
+</configuration>

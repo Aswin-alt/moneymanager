@@ -33,7 +33,7 @@ public class CategoryService {
 
     public List<CategoryResponse> getCategoriesByType(String email, CategoryType type) {
         User user = findUser(email);
-        return categoryRepository.findByUserIdAndCategoryType(user.getId(), type)
+        return categoryRepository.findByUserIdOrSystemAndType(user.getId(), type)
                 .stream().map(this::toResponse).toList();
     }
 

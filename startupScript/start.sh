@@ -22,7 +22,7 @@ echo "╚═══════════════════════�
 echo ""
 
 echo "► Starting backend...  (logs: logs/backend.log)"
-bash "$PROJECT_DIR/scripts/start-backend.sh" > "$BACKEND_LOG" 2>&1 &
+bash "$PROJECT_DIR/startupScript/start-backend.sh" > "$BACKEND_LOG" 2>&1 &
 BACKEND_PID=$!
 
 # Wait for the backend to become ready (up to 40s)
@@ -38,7 +38,7 @@ done
 echo ""
 
 echo "► Starting frontend... (logs: logs/frontend.log)"
-bash "$PROJECT_DIR/scripts/start-frontend.sh" > "$FRONTEND_LOG" 2>&1 &
+bash "$PROJECT_DIR/startupScript/start-frontend.sh" > "$FRONTEND_LOG" 2>&1 &
 FRONTEND_PID=$!
 
 echo ""

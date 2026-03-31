@@ -15,7 +15,8 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     @Query("SELECT c FROM Category c WHERE (c.user.id = :userId OR c.user IS NULL) ORDER BY c.sortOrder")
     List<Category> findByUserIdOrSystem(@Param("userId") Long userId);
 
-    List<Category> findByUserIdAndCategoryType(Long userId, CategoryType type);
+    @Query("SELECT c FROM Category c WHERE (c.user.id = :userId OR c.user IS NULL) AND c.categoryType = :type ORDER BY c.sortOrder")
+    List<Category> findByUserIdOrSystemAndType(@Param("userId") Long userId, @Param("type") CategoryType type);
 
     List<Category> findByIsSystemTrue();
 }
